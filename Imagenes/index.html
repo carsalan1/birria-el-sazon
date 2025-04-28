@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Birria El Sazón</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: #fff8f0; }
+    header {
+      background: linear-gradient(to right, #c62828, #ef6c00);
+      color: white;
+      padding: 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1, header span { margin: 0; font-size: 1.2rem; }
+    main { padding: 1rem; }
+    .menu-item { background: white; margin: 1rem 0; padding: 1rem; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+    .menu-item img { max-width: 100%; border-radius: 10px; margin-bottom: 1rem; }
+    .option-item { margin: 0.5rem 0; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; }
+    .option-item span { flex: 2; text-align: left; font-size: 0.95rem; }
+    .controls { display: flex; align-items: center; gap: 0.5rem; }
+    .controls button { padding: 0.3rem 0.6rem; }
+    #order-summary, #ticket { margin-top: 2rem; background: #ffffff; padding: 1rem; border-radius: 10px; }
+    #method-payment { width: 100%; padding: 0.5rem; margin-top: 1rem; }
+    #finalize { background: #c62828; color: white; border: none; padding: 1rem; width: 100%; margin-top: 1rem; border-radius: 8px; }
+    footer {
+      background: linear-gradient(to right, #c62828, #ef6c00);
+      color: white;
+      text-align: center;
+      padding: 1rem;
+      position: relative;
+      bottom: 0;
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>Birria El Sazón</h1>
+  <span>Pasión en cada mordida</span>
+</header>
+
+<main>
+  <div id="welcome"></div>
+
+  <div id="login">
+    <input type="text" id="name" placeholder="Ingresa tu nombre">
+    <button onclick="registerName()">Entrar</button>
+  </div>
+
+  <div id="menu" style="display:none;"></div>
+
+  <div id="order-summary" style="display:none;">
+    <h3>Tu Pedido</h3>
+    <ul id="order-list"></ul>
+    <h3>Total: $<span id="total">0</span></h3>
+    <label for="method-payment">Método de Pago:</label>
+    <select id="method-payment">
+      <option>-- Selecciona --</option>
+      <option>Efectivo</option>
+      <option>Tarjeta</option>
+      <option>Transferencia</option>
+    </select>
+    <button id="finalize" onclick="saveOrder()">Pedir Cuenta</button>
+  </div>
+
+  <div id="ticket" style="display:none;"></div>
+
+  <div id="admin-panel" style="display:none;">
+    <h2>Panel de Administrador</h2>
+    <button onclick="showSales()">Consultar Ventas</button>
+    <div id="sales-data"></div>
+  </div>
+</main>
+
+<footer>
+  © 2025 Birria El Sazón
+</footer>
+
+<script>
+  let clientName = "";
+  let order = [];
+  let total = 0;
+  let database = [];
+  let ticketNumber = 0;
+
+  let groupedMenu = [
+    {
+      image: 'imagenes/taco-birria.jpg',
+      options: [
+        {name: 'Taco de birria', price: 28},
+        {name: 'Orden de 4 pzs. con consomé individual', price: 100}
+      ]
+    },
+    {
+      image: 'imagenes/consome.jpg',
+      options: [
+        {name: 'Vaso individual de consomé', price: 20},
+        {name: 'Medio litro de consomé', price: 50},
+        {name: 'Litro de consomé', price: 90}
+      ]
+    },
+    {
+      image: 'imagenes/taco-cochinita.jpg',
+      options: [
+        {name: 'Taco de cochinita', price: 28},
+        {name: 'Orden de 4 tacos de cochinita', price: 100}
+      ]
+    },
+    {
+      image: 'imagenes/quesadilla-sesos.jpg',
+      options: [
+        {name: 'Quesadilla de seso', price: 13}
+      ]
+    },
+    {
+      image: 'imagenes/agua.jpg',
+      options: [
+        {name: 'Agua de sabor medio litro (Jamaica o Horchata)', price: 15},
+        {name: 'Agua de sabor litro (Jamaica o Horchata)', price: 30}
+      ]
+    },
+    {
+      image: 'imagenes/refresco.jpg',
+      options: [
+        {name: 'Refresco', price: 25}
+      ]
+    },
+    {
+      image: 'imagenes/flan.jpg',
+      options: [
+        {name: 'Flan', price: 20}
+      ]
+    }
+  ];
+
+  let quantities = {};
+
+  function registerName() {
+    clientName = document.getElementById('name').value;
+    ticketNumber = database.length + 1;
+    if (clientName.toLowerCase() === "admin") {
+      let password = prompt("Introduce la contraseña de administrador:");
+      if (password === "12345") {
+        document.getElementById('login').style.display = 'none';
+        document.getElementById('admin-panel').style.display = 'block';
+      } else {
+        alert("Contraseña incorrecta");
+      }
+    } else {
+      let now = new Date();
+      let date = now.toLocaleDateString();
+      let time = now.toLocaleTimeString();
+      document.getElementById('welcome').innerHTML = `<h2>Bienvenido, ${clientName}!<br><small>Tu número de ticket es #${ticketNumber}<br>${date} ${time}</small></h2>`;
+      document.getElementById('login').style.display = 'none';
+      renderMenu();
+      document.getElementById('menu').style.display = 'block';
+      document.getElementById('order-summary').style.display = 'block';
+    }
+  }
+
+  function renderMenu() {
+    const menuDiv = document.getElementById('menu');
+    menuDiv.innerHTML = '';
+    groupedMenu.forEach(group => {
+      let menuHtml = `<div class="menu-item"><img src="${group.image}" alt="${group.options[0].name}">`;
+      group.options.forEach(item => {
+        quantities[item.name] = 0;
+        menuHtml += `
+          <div class="option-item">
+            <span>${item.name} - $${item.price}</span>
+            <div class="controls">
+              <button onclick="decreaseQuantity('${item.name}')">-</button>
+              <span id="qty-${item.name.replace(/\s+/g, '-')}">0</span>
+              <button onclick="increaseQuantity('${item.name}')">+</button>
+              <button onclick="addItem('${item.name}', ${item.price})">Agregar</button>
+            </div>
+          </div>
+        `;
+      });
+      menuHtml += `</div>`;
+      menuDiv.innerHTML += menuHtml;
+    });
+  }
+
+  function increaseQuantity(name) {
+    quantities[name]++;
+    document.getElementById('qty-' + name.replace(/\s+/g, '-')).innerText = quantities[name];
+  }
+
+  function decreaseQuantity(name) {
+    if (quantities[name] > 0) {
+      quantities[name]--;
+      document.getElementById('qty-' + name.replace(/\s+/g, '-')).innerText = quantities[name];
+    }
+  }
+
+  function addItem(name, price) {
+    let qty = quantities[name];
+    if (qty > 0) {
+      order.push({name: name, price: price, quantity: qty});
+      total += price * qty;
+      quantities[name] = 0;
+      document.getElementById('qty-' + name.replace(/\s+/g, '-')).innerText = 0;
+      updateOrder();
+    } else {
+      alert("Selecciona una cantidad mayor a 0");
+    }
+  }
+
+  function updateOrder() {
+    const list = document.getElementById('order-list');
+    list.innerHTML = "";
+    order.forEach(item => {
+      let li = document.createElement('li');
+      li.textContent = `${item.quantity} x ${item.name} - $${item.price * item.quantity}`;
+      list.appendChild(li);
+    });
+    document.getElementById('total').textContent = total;
+  }
+
+  function saveOrder() {
+    const method = document.getElementById('method-payment').value;
+    if (method === "-- Selecciona --") {
+      alert("Selecciona un método de pago.");
+      return;
+    }
+    database.push({client: clientName, order: order, total: total, datetime: new Date(), payment: method, ticket: ticketNumber});
+    showTicket();
+    order = [];
+    total = 0;
+    updateOrder();
+  }
+
+  function showTicket() {
+    const ticket = document.getElementById('ticket');
+    let lastOrder = database[database.length - 1];
+    ticket.innerHTML = `<h2>Ticket #${lastOrder.ticket}</h2><p>Cliente: ${lastOrder.client}<br>Fecha: ${lastOrder.datetime.toLocaleDateString()} ${lastOrder.datetime.toLocaleTimeString()}<br>Método de pago: ${lastOrder.payment}</p><ul>`;
+    lastOrder.order.forEach(item => {
+      ticket.innerHTML += `<li>${item.quantity} x ${item.name} - $${item.price * item.quantity}</li>`;
+    });
+    ticket.innerHTML += `</ul><h3>Total: $${lastOrder.total}</h3><p>Gracias por su compra, esperamos su visita nuevamente.</p>`;
+    document.getElementById('menu').style.display = 'none';
+    document.getElementById('order-summary').style.display = 'none';
+    ticket.style.display = 'block';
+  }
+
+  function showSales() {
+    const sales = document.getElementById('sales-data');
+    sales.innerHTML = "<h3>Ventas registradas:</h3>";
+    database.forEach(entry => {
+      sales.innerHTML += `<p><strong>Ticket #${entry.ticket} - ${entry.client}</strong> ($${entry.total})<br>Artículos: ${entry.order.map(i => i.quantity + ' x ' + i.name).join(', ')}<br>Método: ${entry.payment}</p>`;
+    });
+  }
+</script>
+
+</body>
+</html>
