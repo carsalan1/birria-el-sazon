@@ -1,172 +1,177 @@
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
+/* Estilos generales */
 body {
   font-family: 'Poppins', sans-serif;
+  background: #fef7ef;
   margin: 0;
   padding: 0;
-  background: #fff8f0;
-  color: #333;
 }
 
 header {
-  background: linear-gradient(to right, #b71c1c, #f44336);
+  background: linear-gradient(90deg, #b22222, #ff6600);
+  color: #fff;
+  padding: 1rem;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 1rem 2rem;
-  gap: 1rem;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
 }
 
 header img {
-  height: 70px;
-  width: auto;
-  border-radius: 10px;
-}
-
-header div {
-  text-align: center;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  margin-right: 15px;
 }
 
 header h1 {
+  font-size: 26px;
   margin: 0;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #ffffff;
 }
 
 header span {
-  font-size: 1rem;
-  color: #fce4ec;
+  font-size: 14px;
+  font-weight: 300;
 }
 
 main {
-  padding: 1rem;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  padding: 20px;
 }
 
-.menu-item {
-  background: #ffffff;
-  width: 100%;
-  max-width: 400px;
-  margin: 1rem 0;
-  padding: 1rem;
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+#welcome h2 {
   text-align: center;
-  transition: transform 0.2s;
+  margin-top: 20px;
 }
 
-.menu-item:hover {
-  transform: scale(1.02);
+/* Menú de productos */
+.menu-item {
+  background: #fff;
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  text-align: center;
 }
 
 .menu-item img {
   width: 100%;
-  border-radius: 10px;
-  margin-bottom: 1rem;
+  max-width: 250px;
+  height: auto;
+  border-radius: 12px;
+  margin-bottom: 10px;
 }
 
 .option-item {
-  margin: 0.5rem 0;
-  text-align: left;
-}
-
-.option-item span {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
+  margin-top: 10px;
 }
 
 .controls {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
+  margin-top: 5px;
 }
 
-.controls button {
-  background: #f44336;
+/* Botones grandes */
+.button {
+  background-color: #007bff;
   color: white;
   border: none;
-  padding: 0.4rem 0.8rem;
+  padding: 10px 20px;
+  margin: 5px;
+  font-size: 16px;
   border-radius: 8px;
-  font-size: 1rem;
   cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
-.controls button:hover {
-  background: #d32f2f;
+.button:hover {
+  background-color: #0056b3;
 }
 
-#order-summary, #ticket, #sales-data, #summary-data {
+/* Botones pequeños (+ y -) */
+.button-small {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin: 2px;
+  font-size: 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.button-small:hover {
+  background-color: #0056b3;
+}
+
+/* Inputs y Select */
+input[type="text"],
+input[type="password"],
+input[type="date"],
+select {
+  padding: 10px;
+  margin: 5px 0;
   width: 100%;
-  max-width: 400px;
-  margin-top: 2rem;
-  background: #ffffff;
-  padding: 1.5rem;
-  border-radius: 15px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-}
-
-#method-payment {
-  width: 100%;
-  padding: 0.6rem;
-  margin-top: 1rem;
+  max-width: 300px;
   border-radius: 8px;
   border: 1px solid #ccc;
+  font-size: 16px;
 }
 
-#finalize {
-  background: #388e3c;
-  color: white;
-  border: none;
-  padding: 1rem;
-  width: 100%;
-  margin-top: 1.5rem;
-  border-radius: 10px;
-  font-size: 1.1rem;
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #007bff;
 }
 
-#finalize:hover {
-  background: #2e7d32;
+/* Pedido */
+#order-summary {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  margin-top: 20px;
 }
 
-footer {
-  background: linear-gradient(to right, #b71c1c, #f44336);
-  color: white;
+#order-list {
+  list-style-type: none;
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+#order-list li {
+  margin-bottom: 8px;
+}
+
+/* Ticket */
+#ticket {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  margin-top: 20px;
   text-align: center;
-  padding: 1rem;
-  position: relative;
-  margin-top: 2rem;
 }
 
+/* Panel Admin */
 #admin-panel {
-  margin-top: 2rem;
-  width: 100%;
-  max-width: 500px;
-  text-align: center;
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  margin-top: 20px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 #admin-panel button {
-  background: #1976d2;
+  margin: 5px;
+}
+
+#admin-results {
+  margin-top: 20px;
+}
+
+/* Footer */
+footer {
+  background: linear-gradient(90deg, #b22222, #ff6600);
   color: white;
-  border: none;
-  padding: 0.8rem 1.2rem;
-  margin: 0.5rem;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-}
-
-#admin-panel button:hover {
-  background: #1565c0;
-}
-
-input[type="date"] {
-  padding: 0.5rem;
-  border-radius: 8px;
-  border: 1px solid #ccc;
+  text-align: center;
+  padding: 1rem;
+  margin-top: 2rem;
+  font-size: 14px;
 }
