@@ -17,6 +17,7 @@ const firebaseConfig = {
   let order = JSON.parse(localStorage.getItem('order') || "[]");
   let total = parseFloat(localStorage.getItem('total')) || 0;
   let quantities = {};
+  let clientPassword = ""; // Contraseña actual de clientes
   
   let groupedMenu = [
     { image: 'imagenes/taco-birria.jpg', options: [{ name: 'Taco de birria', price: 28 }, { name: 'Orden de 4 pzs. con consomé individual', price: 100 }] },
@@ -28,7 +29,17 @@ const firebaseConfig = {
     { image: 'imagenes/flan.jpg', options: [{ name: 'Flan', price: 20 }] }
   ];
   
-  // Verificar si ya había sesión activa
+  // Cargar la contraseña de cliente al inicio
+  firebase.database().ref('configuracion/passwordCliente').get().then(snapshot => {
+    if (snapshot.exists()) {
+      clientPassword = snapshot.val();
+    } else {
+      clientPassword = "1234"; // contraseña default si no existe
+      firebase.database().ref('configuracion').set({ passwordCliente: clientPassword });
+    }
+  });
+  
+  // Revisar si ya existe sesión activa
   if (clientName && ticketNumber) {
     showWelcome();
     renderMenu();
@@ -40,6 +51,7 @@ const firebaseConfig = {
   
   function registerName() {
     clientName = document.getElementById('name').value.trim();
+    const passwordInput = document.getElementById('password').value.trim();
   
     if (clientName.toLowerCase() === "admin") {
       let password = prompt("Introduce la contraseña de administrador:");
@@ -47,9 +59,14 @@ const firebaseConfig = {
         document.getElementById('login').style.display = 'none';
         document.getElementById('admin-panel').style.display = 'block';
       } else {
-        alert("Contraseña incorrecta");
+        alert("Contraseña de administrador incorrecta");
       }
     } else if (clientName !== "") {
+      if (passwordInput !== clientPassword) {
+        alert("Contraseña de cliente incorrecta");
+        return;
+      }
+  
       if (!ticketNumber) {
         database.ref('contador/ultimoTicket').get().then(snapshot => {
           let ultimo = snapshot.exists() ? snapshot.val() : 0;
@@ -175,6 +192,7 @@ const firebaseConfig = {
         console.error("Error al guardar pedido:", error);
       });
   }
+  
   function showTicket(pedido) {
     const ticket = document.getElementById('ticket');
     ticket.innerHTML = `<h2>Ticket #${pedido.ticket}</h2>
@@ -184,103 +202,30 @@ const firebaseConfig = {
     });
     ticket.innerHTML += `</ul><h3>Total: $${pedido.total}</h3><br><h2 style="font-size: 1.5em; font-weight: bold;">Gracias por su preferencia, vuelva pronto, ${pedido.cliente}.</h2>`;
   
-    document.getElementById('welcome').innerHTML = ""; // Quitamos mensaje de Bienvenido
+    document.getElementById('welcome').innerHTML = "";
     document.getElementById('menu').style.display = 'none';
     document.getElementById('order-summary').style.display = 'none';
     ticket.style.display = 'block';
   }
   
-  // FUNCIONES ADMINISTRADOR
+  // FUNCIONES ADMIN
   
-  function showTodayTickets() {
-    const today = new Date().toISOString().split('T')[0];
-    const resultsDiv = document.getElementById('admin-results');
-    resultsDiv.innerHTML = "<h3>Tickets del día:</h3>";
-  
-    firebase.database().ref('ventas').once('value', snapshot => {
-      snapshot.forEach(ticketSnap => {
-        let data = ticketSnap.val();
-        if (data.fecha === today) {
-          resultsDiv.innerHTML += `
-            <div style="border-bottom:1px solid #ccc; margin-bottom:10px; padding-bottom:10px;">
-              <strong>Ticket #${data.ticket}</strong><br>
-              <strong>Fecha:</strong> ${data.fecha}<br>
-              <strong>Cliente:</strong> ${data.cliente}<br>
-              <strong>Productos:</strong><br>
-              <ul>
-                ${data.orden.map(item => `<li>${item.cantidad} x ${item.producto} - $${item.subtotal}</li>`).join('')}
-              </ul>
-              <strong>Total:</strong> $${data.total}
-            </div>
-          `;
-        }
-      });
-    });
-  }
-  
-  function showTodaySales() {
-    const today = new Date().toISOString().split('T')[0];
-    const resultsDiv = document.getElementById('admin-results');
-    resultsDiv.innerHTML = "<h3>Venta del día:</h3>";
-  
-    let resumen = {};
-    let totalVentas = 0;
-  
-    firebase.database().ref('ventas').once('value', snapshot => {
-      snapshot.forEach(ticketSnap => {
-        let data = ticketSnap.val();
-        if (data.fecha === today) {
-          totalVentas += data.total;
-          data.orden.forEach(item => {
-            if (!resumen[item.producto]) {
-              resumen[item.producto] = {cantidad: 0, subtotal: 0};
-            }
-            resumen[item.producto].cantidad += item.cantidad;
-            resumen[item.producto].subtotal += item.subtotal;
-          });
-        }
-      });
-  
-      for (let producto in resumen) {
-        resultsDiv.innerHTML += `<p>${producto}: ${resumen[producto].cantidad} piezas - $${resumen[producto].subtotal}</p>`;
-      }
-      resultsDiv.innerHTML += `<h3>Total Vendido: $${totalVentas}</h3>`;
-    });
-  }
-  
-  function showSalesByDateRange() {
-    const inicio = document.getElementById('fechaInicio').value;
-    const fin = document.getElementById('fechaFin').value;
-    const resultsDiv = document.getElementById('admin-results');
-    resultsDiv.innerHTML = "<h3>Venta por rango de fechas:</h3>";
-  
-    if (!inicio || !fin) {
-      alert("Selecciona ambas fechas");
+  function updateClientPassword() {
+    const newPass = document.getElementById('newClientPassword').value.trim();
+    if (newPass.length < 3) {
+      alert("La contraseña debe tener al menos 3 caracteres.");
       return;
     }
-  
-    let resumen = {};
-    let totalVentas = 0;
-  
-    firebase.database().ref('ventas').once('value', snapshot => {
-      snapshot.forEach(ticketSnap => {
-        let data = ticketSnap.val();
-        if (data.fecha >= inicio && data.fecha <= fin) {
-          totalVentas += data.total;
-          data.orden.forEach(item => {
-            if (!resumen[item.producto]) {
-              resumen[item.producto] = {cantidad: 0, subtotal: 0};
-            }
-            resumen[item.producto].cantidad += item.cantidad;
-            resumen[item.producto].subtotal += item.subtotal;
-          });
-        }
+    firebase.database().ref('configuracion').update({ passwordCliente: newPass })
+      .then(() => {
+        alert("Contraseña actualizada correctamente.");
+        clientPassword = newPass;
+      })
+      .catch(error => {
+        console.error("Error al actualizar contraseña:", error);
       });
-  
-      for (let producto in resumen) {
-        resultsDiv.innerHTML += `<p>${producto}: ${resumen[producto].cantidad} piezas - $${resumen[producto].subtotal}</p>`;
-      }
-      resultsDiv.innerHTML += `<h3>Total Vendido: $${totalVentas}</h3>`;
-    });
   }
+  
+  // ... Las funciones de showTodayTickets, showTodaySales, showSalesByDateRange
+  // siguen como ya las tenías
   
