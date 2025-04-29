@@ -1,177 +1,117 @@
-/* Estilos generales */
-body {
-  font-family: 'Poppins', sans-serif;
-  background: #fef7ef;
-  margin: 0;
-  padding: 0;
-}
 
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  background: #fff6ed;
+}
 header {
-  background: linear-gradient(90deg, #b22222, #ff6600);
-  color: #fff;
-  padding: 1rem;
+  background: linear-gradient(to right, #c0392b, #e67e22);
+  color: white;
+  padding: 10px;
+}
+.header-content {
   display: flex;
   align-items: center;
+  gap: 15px;
+  padding-left: 20px;
 }
-
-header img {
-  width: 60px;
-  height: 60px;
-  object-fit: contain;
-  margin-right: 15px;
+.logo-grande {
+  width: 80px;
+  height: auto;
 }
-
-header h1 {
-  font-size: 26px;
-  margin: 0;
+.slogan {
+  font-style: italic;
+  font-size: 0.9rem;
+  color: #ffe8c2;
 }
-
-header span {
-  font-size: 14px;
-  font-weight: 300;
-}
-
-main {
+.section {
   padding: 20px;
 }
-
-#welcome h2 {
-  text-align: center;
-  margin-top: 20px;
+input, select, button {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  width: 80%;
+  max-width: 300px;
 }
-
-/* Menú de productos */
-.menu-item {
-  background: #fff;
-  border-radius: 12px;
-  padding: 1rem;
-  margin-bottom: 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  text-align: center;
+.button-primary {
+  background-color:rgb(49, 145, 148);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
-
-.menu-item img {
-  width: 100%;
-  max-width: 250px;
-  height: auto;
-  border-radius: 12px;
-  margin-bottom: 10px;
+.button-primary:hover {
+  background-color: #e9864d;
 }
-
-.option-item {
+.button-exit, .button-cancel {
   margin-top: 10px;
-}
-
-.controls {
-  margin-top: 5px;
-}
-
-/* Botones grandes */
-.button {
-  background-color: #007bff;
+  background-color: #a7525a;
   color: white;
   border: none;
   padding: 10px 20px;
-  margin: 5px;
-  font-size: 16px;
+  font-size: 1rem;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
-
-.button:hover {
-  background-color: #0056b3;
+.button-exit:hover, .button-cancel:hover {
+  background-color: #e9864d;
 }
-
-/* Botones pequeños (+ y -) */
+.menu-item {
+  text-align: center;
+  background-color: #fff3e6;
+  border-radius: 12px;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  margin: 30px auto;
+  padding: 15px;
+  max-width: 500px;
+}
+.menu-item img {
+  width: 100%;
+  max-width: 250px;
+  border-radius: 12px;
+  margin-bottom: 10px;
+}
+.option-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin: 10px 0;
+  padding: 6px 10px;
+  background-color: #ffe6cc;
+  border-radius: 10px;
+}
+.product-name {
+  flex: 1;
+  text-align: left;
+  font-weight: 500;
+  color: #5a2d0c;
+  font-size: 1rem;
+}
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
 .button-small {
-  background-color: #007bff;
+  width: 40px;
+  height: 40px;
+  font-size: 22px;
+  font-weight: bold;
+  background-color: #ff6600;
   color: white;
   border: none;
-  padding: 5px 10px;
-  margin: 2px;
-  font-size: 14px;
   border-radius: 8px;
   cursor: pointer;
-  transition: background-color 0.3s ease;
 }
-
 .button-small:hover {
-  background-color: #0056b3;
+  background-color: #cc5200;
 }
-
-/* Inputs y Select */
-input[type="text"],
-input[type="password"],
-input[type="date"],
-select {
-  padding: 10px;
-  margin: 5px 0;
-  width: 100%;
-  max-width: 300px;
-  border-radius: 8px;
-  border: 1px solid #ccc;
-  font-size: 16px;
-}
-
-input:focus,
-select:focus {
-  outline: none;
-  border-color: #007bff;
-}
-
-/* Pedido */
-#order-summary {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  margin-top: 20px;
-}
-
-#order-list {
-  list-style-type: none;
-  padding: 0;
-  margin-bottom: 15px;
-}
-
-#order-list li {
-  margin-bottom: 8px;
-}
-
-/* Ticket */
-#ticket {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-  margin-top: 20px;
+.quantity-display, .controls span {
+  width: 35px;
   text-align: center;
-}
-
-/* Panel Admin */
-#admin-panel {
-  background: #fff;
-  padding: 20px;
-  border-radius: 12px;
-  margin-top: 20px;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-}
-
-#admin-panel button {
-  margin: 5px;
-}
-
-#admin-results {
-  margin-top: 20px;
-}
-
-/* Footer */
-footer {
-  background: linear-gradient(90deg, #b22222, #ff6600);
-  color: white;
-  text-align: center;
-  padding: 1rem;
-  margin-top: 2rem;
-  font-size: 14px;
+  font-size: 22px;
+  font-weight: bold;
+  color: #333;
 }

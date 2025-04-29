@@ -1,99 +1,69 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Birria El Sazón</title>
-
-  <link rel="stylesheet" href="style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
-
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
-
 <body>
 
 <header>
-  <img src="imagenes/logo.png" alt="Birria El Sazón">
-  <div>
-    <h1>Birria El Sazón</h1>
-    <span>Auténtica Birria de Res</span>
+  <div class="header-content">
+    <img src="imagenes/logo.png" alt="Logo" class="logo-grande"/>
+    <div>
+      <h1>Birria El Sazón</h1>
+      <p>Birria de res</p>
+      <small class="slogan">Pasión en cada mordida</small>
+    </div>
   </div>
 </header>
 
-<main>
+<div id="login" class="section">
+  <h2>Bienvenido</h2>
+  <input type="text" id="name" placeholder="Escribe tu nombre" />
+  <input type="password" id="password" placeholder="Contraseña de cliente" />
+  <button onclick="registerName()" class="button-primary">Entrar</button>
+  <button onclick="cancelEntry()" class="button-cancel">Cancelar</button>
+</div>
 
-  <div id="welcome"></div>
+<div id="welcome" class="section"></div>
+<div id="menu" class="section" style="display:none;"></div>
+<div id="order-summary" class="section" style="display:none;">
+  <h2>Tu Pedido</h2>
+  <div id="order-list"></div>
+  <p><strong>Total: $<span id="total">0</span></strong></p>
+  <button onclick="confirmCurrentOrder()" class="button-primary">Confirmar Pedido</button>
+  <br /><br />
+  <select id="method-payment">
+    <option>-- Selecciona --</option>
+    <option>Efectivo</option>
+    <option>Tarjeta</option>
+  </select>
+  <button onclick="prepareCheckout()" class="button-primary">Pedir Cuenta</button>
+</div>
 
-  <!-- Login -->
-  <div id="login">
-    <input type="text" id="name" placeholder="Ingresa tu nombre"><br><br>
-    <input type="password" id="password" placeholder="Contraseña del día"><br><br>
-    <button class="button" onclick="registerName()">Entrar</button>
-  </div>
+<div id="ticket" class="section" style="display:none;">
+  <button onclick="exitSite()" class="button-exit">Salir</button>
+</div>
 
-  <!-- Menú -->
-  <div id="menu" style="display:none;"></div>
-
-  <!-- Pedido -->
-  <div id="order-summary" style="display:none;">
-    <h3>Tu Pedido</h3>
-    <ul id="order-list"></ul>
-    <h3>Total: $<span id="total">0</span></h3>
-
-    <div id="order-buttons">
-      <button class="button" onclick="confirmCurrentOrder()">Confirmar Pedido</button>
-      <button class="button" onclick="editOrder()">Modificar Pedido</button>
-    </div>
-
-    <br>
-
-    <label for="method-payment">Método de Pago:</label>
-    <select id="method-payment">
-      <option>-- Selecciona --</option>
-      <option>Efectivo</option>
-      <option>Tarjeta</option>
-      <option>Transferencia</option>
-    </select>
-
-    <button class="button" id="checkout" onclick="prepareCheckout()">Pedir Cuenta</button>
-  </div>
-
-  <!-- Ticket -->
-  <div id="ticket" style="display:none;"></div>
-
-  <!-- Admin Panel -->
-  <div id="admin-panel" style="display:none;">
-    <h2>Panel de Administrador</h2>
-
-    <button class="button" onclick="showTodayTickets()">Mostrar Tickets del Día</button>
-    <button class="button" onclick="showTodaySales()">Mostrar Venta del Día</button>
-
-    <div style="margin-top:1rem;">
-      <label>Fecha Inicio:</label>
-      <input type="date" id="fechaInicio">
-      <label>Fecha Fin:</label>
-      <input type="date" id="fechaFin">
-      <button class="button" onclick="showSalesByDateRange()">Buscar Venta por Rango</button>
-    </div>
-
-    <div style="margin-top:2rem;">
-      <h3>Cambiar Contraseña de Cliente</h3>
-      <input type="text" id="newClientPassword" placeholder="Nueva Contraseña">
-      <button class="button" onclick="updateClientPassword()">Actualizar Contraseña</button>
-    </div>
-
-    <div id="admin-results" style="margin-top:2rem;"></div>
-  </div>
-
-</main>
-
-<footer>
-  © 2025 Birria El Sazón - Todos los derechos reservados
-</footer>
+<div id="admin-panel" class="section" style="display:none;">
+  <h2>Panel de Administrador</h2>
+  <button onclick="showTodayTickets()" class="button-primary">Mostrar Tickets del Día</button>
+  <button onclick="showTodaySales()" class="button-primary">Mostrar Venta del Día</button>
+  <br /><br />
+  <label>Fecha Inicio:</label><input type="date" id="fechaInicio" />
+  <label>Fecha Fin:</label><input type="date" id="fechaFin" />
+  <button onclick="showSalesByDateRange()" class="button-primary">Buscar Venta por Rango</button>
+  <br /><br />
+  <h3>Cambiar Contraseña de Cliente</h3>
+  <input type="text" id="newClientPassword" placeholder="Nueva Contraseña" />
+  <button onclick="updateClientPassword()" class="button-primary">Actualizar Contraseña</button>
+  <div id="admin-results"></div>
+</div>
 
 <script src="app.js"></script>
-
 </body>
 </html>
