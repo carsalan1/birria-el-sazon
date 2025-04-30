@@ -271,7 +271,7 @@ function prepareCheckout() {
     pedido.orden.forEach(item => {
       ticket.innerHTML += `<li>${item.cantidad} x ${item.producto} - $${item.subtotal}</li>`;
     });
-    ticket.innerHTML += `</ul><h3>Total: $${pedido.total}</h3><br><h2 style="font-size: 1.5em; font-weight: bold;">Gracias por su preferencia, vuelva pronto, ${pedido.cliente}.</h2>`;
+    ticket.innerHTML += `</ul><h3>Total: $${pedido.total}</h3><br><h2 style="font-size: 1.5em; font-weight: bold;">Gracias por su preferencia, vuelva pronto, ${pedido.cliente}.</h2><br><button onclick="exitSite()" class="button-exit">Salir</button>`;
   
     document.getElementById('welcome').innerHTML = "";
     document.getElementById('menu').style.display = 'none';

@@ -35,18 +35,18 @@ input, select, button {
   max-width: 300px;
 }
 .button-primary {
-  background-color:rgb(49, 145, 148);
+  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 .button-primary:hover {
-  background-color: #e9864d;
+  background-color: #0056b3;
 }
 .button-exit, .button-cancel {
   margin-top: 10px;
-  background-color: #a7525a;
+  background-color: #dc3545;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -55,7 +55,7 @@ input, select, button {
   cursor: pointer;
 }
 .button-exit:hover, .button-cancel:hover {
-  background-color: #e9864d;
+  background-color: #c82333;
 }
 .menu-item {
   text-align: center;
