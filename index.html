@@ -1,64 +1,69 @@
 <!DOCTYPE html>
-
 <html lang="es">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Birria El Sazón</title>
-<link href="style.css" rel="stylesheet"/>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Birria El Sazón</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 </head>
 <body>
+
 <header>
-<div class="header-content">
-<img alt="Logo" class="logo-grande" src="imagenes/logo.png"/>
-<div>
-<h1>Birria El Sazón</h1>
-<p>Birria de res</p>
-<small class="slogan">Pasión en cada mordida</small>
-</div>
-</div>
+  <div class="header-content">
+    <img src="imagenes/logo.png" alt="Logo" class="logo-grande"/>
+    <div>
+      <h1>Birria El Sazón</h1>
+      <p>Birria de res</p>
+      <small class="slogan">Pasión en cada mordida</small>
+    </div>
+  </div>
 </header>
-<div class="section" id="login">
-<h2>Bienvenido</h2>
-<input id="name" placeholder="Escribe tu nombre" type="text"/>
-<input id="password" placeholder="Contraseña de cliente" type="password"/>
-<button class="button-primary" onclick="registerName()">Entrar</button>
-<button class="button-cancel" onclick="cancelEntry()">Cancelar</button>
+
+<div id="login" class="section">
+  <h2>Bienvenido</h2>
+  <input type="text" id="name" placeholder="Escribe tu nombre" />
+  <input type="password" id="password" placeholder="Contraseña de cliente" />
+  <button onclick="registerName()" class="button-primary">Entrar</button>
+  <button onclick="cancelEntry()" class="button-cancel">Cancelar</button>
 </div>
-<div class="section" id="welcome"></div>
-<div class="section" id="menu" style="display:none;"></div>
-<div class="section" id="order-summary" style="display:none;">
-<h2>Tu Pedido</h2>
-<div id="order-list"></div>
-<p><strong>Total: $<span id="total">0</span></strong></p>
-<button class="button-primary" onclick="confirmCurrentOrder()">Confirmar Pedido</button>
-<br/><br/>
-<select id="method-payment">
-<option>-- Selecciona --</option>
-<option>Efectivo</option>
-<option>Tarjeta</option>
-</select>
-<button class="button-primary" onclick="prepareCheckout()">Pedir Cuenta</button>
+
+<div id="welcome" class="section"></div>
+<div id="menu" class="section" style="display:none;"></div>
+<div id="order-summary" class="section" style="display:none;">
+  <h2>Tu Pedido</h2>
+  <div id="order-list"></div>
+  <p><strong>Total: $<span id="total">0</span></strong></p>
+  <button onclick="confirmCurrentOrder()" class="button-primary">Confirmar Pedido</button>
+  <br /><br />
+  <select id="method-payment">
+    <option>-- Selecciona --</option>
+    <option>Efectivo</option>
+    <option>Tarjeta</option>
+  </select>
+  <button onclick="prepareCheckout()" class="button-primary">Pedir Cuenta</button>
 </div>
-<div class="section" id="ticket" style="display:none;">
-<button class="button-exit" onclick="exitSite()">Salir</button>
+
+<div id="ticket" class="section" style="display:none;">
+  <button onclick="exitSite()" class="button-exit">Salir</button>
 </div>
-<div class="section" id="admin-panel" style="display:none;">
-<h2>Panel de Administrador</h2>
-<button class="button-primary" onclick="showTodayTickets()">Mostrar Tickets del Día</button>
-<button class="button-primary" onclick="showTodaySales()">Mostrar Venta del Día</button>
-<br/><br/>
-<label>Fecha Inicio:</label><input id="fechaInicio" type="date"/>
-<label>Fecha Fin:</label><input id="fechaFin" type="date"/>
-<button class="button-primary" onclick="showSalesByDateRange()">Buscar Venta por Rango</button>
-<br/><br/>
-<h3>Cambiar Contraseña de Cliente</h3>
-<input id="newClientPassword" placeholder="Nueva Contraseña" type="text"/>
-<button class="button-primary" onclick="updateClientPassword()">Actualizar Contraseña</button>
-<div id="admin-results"></div>
-<button class="button-exit" onclick="exitSite()">Salir</button></div>
+
+<div id="admin-panel" class="section" style="display:none;">
+  <h2>Panel de Administrador</h2>
+  <button onclick="showTodayTickets()" class="button-primary">Mostrar Tickets del Día</button>
+  <button onclick="showTodaySales()" class="button-primary">Mostrar Venta del Día</button>
+  <br /><br />
+  <label>Fecha Inicio:</label><input type="date" id="fechaInicio" />
+  <label>Fecha Fin:</label><input type="date" id="fechaFin" />
+  <button onclick="showSalesByDateRange()" class="button-primary">Buscar Venta por Rango</button>
+  <br /><br />
+  <h3>Cambiar Contraseña de Cliente</h3>
+  <input type="text" id="newClientPassword" placeholder="Nueva Contraseña" />
+  <button onclick="updateClientPassword()" class="button-primary">Actualizar Contraseña</button>
+  <div id="admin-results"></div>
+</div>
+
 <script src="app.js"></script>
 </body>
 </html>
