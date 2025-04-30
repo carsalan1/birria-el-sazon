@@ -16,7 +16,7 @@ header {
   padding-left: 20px;
 }
 .logo-grande {
-  width: 80px;
+  width: 180px;
   height: auto;
 }
 .slogan {
@@ -35,18 +35,18 @@ input, select, button {
   max-width: 300px;
 }
 .button-primary {
-  background-color: #007bff;
+  background-color: #59ad20;
   color: white;
   border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 .button-primary:hover {
-  background-color: #0056b3;
+  background-color: #cf7622;
 }
 .button-exit, .button-cancel {
   margin-top: 10px;
-  background-color: #dc3545;
+  background-color: #d84857;
   color: white;
   border: none;
   padding: 10px 20px;
@@ -55,7 +55,7 @@ input, select, button {
   cursor: pointer;
 }
 .button-exit:hover, .button-cancel:hover {
-  background-color: #c82333;
+  background-color: #cf7622;
 }
 .menu-item {
   text-align: center;
