@@ -3,18 +3,92 @@
 <head>
   <meta charset="UTF-8">
   <title>Registro de Gastos y Ganancias</title>
-  <link rel="stylesheet" href="style.css">
+
+  <!-- ✅ Adaptación para dispositivos móviles -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- ✅ Estilos integrados -->
   <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      padding: 10px;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+
+    .section {
+      background: #fff;
+      padding: 16px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      max-width: 600px;
+      margin: auto;
+    }
+
+    h2, h3, h4 {
+      color: #333;
+    }
+
     .gasto-linea {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
+      gap: 8px;
+      margin-bottom: 10px;
     }
-    .gasto-linea input {
-      padding: 6px;
-      font-size: 0.9rem;
+
+    .gasto-linea input[type="text"] {
+      flex: 2;
+    }
+
+    .gasto-linea input[type="number"] {
+      flex: 1;
+    }
+
+    input[type="date"],
+    input[type="number"],
+    input[type="text"] {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .button-primary {
+      background-color: #007bff;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .button-primary:hover {
+      background-color: #0056b3;
+    }
+
+    .button-exit {
+      background-color: #6c757d;
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+
+    ul {
+      padding-left: 20px;
+      margin-top: 0;
+    }
+
+    @media (max-width: 600px) {
+      h2, h3, h4 {
+        font-size: 1.1em;
+      }
     }
   </style>
 </head>
@@ -41,15 +115,17 @@
     <div id="admin-results" style="margin-top:20px;"></div>
     <br><button class="button-exit" onclick="window.close()">Salir</button>
   </div>
-
+  <!-- ✅ Firebase SDK y lógica JavaScript -->
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
   <script>
+    // 🔗 Conexión a Firebase
     const firebaseConfig = {
       databaseURL: "https://birria-c2b8a-default-rtdb.firebaseio.com/"
     };
     firebase.initializeApp(firebaseConfig);
 
+    // ✅ Productos considerados para ganancia
     const productosClave = [
       'Taco de birria',
       'Orden de 4 pzs. con consomé individual',
@@ -62,6 +138,7 @@
       'Refresco'
     ];
 
+    // ✅ Cargar gastos existentes desde Firebase
     function loadExpenses() {
       firebase.database().ref('gastos').once('value').then(snapshot => {
         const gastos = snapshot.val() || [];
@@ -72,14 +149,15 @@
           const row = document.createElement('div');
           row.className = 'gasto-linea';
           row.innerHTML = `
-            <input id="desc${i}" value="${gasto.descripcion}" placeholder="Descripción #${i + 1}" type="text" style="flex:1;">
-            <input id="cost${i}" value="${gasto.costo}" placeholder="Costo #${i + 1}" type="number" min="0" step="0.01" style="width:120px;">
+            <input id="desc${i}" value="${gasto.descripcion}" placeholder="Descripción #${i + 1}" type="text">
+            <input id="cost${i}" value="${gasto.costo}" placeholder="Costo #${i + 1}" type="number" min="0" step="0.01">
           `;
           container.appendChild(row);
         }
       });
     }
 
+    // ✅ Guardar gastos en Firebase
     function saveExpenses() {
       const gastos = [];
       for (let i = 0; i < 15; i++) {
@@ -92,6 +170,7 @@
       });
     }
 
+    // ✅ Calcular ganancias y mostrar desglose
     function calculateProfit() {
       let totalExpenses = 0;
       for (let i = 0; i < 15; i++) {
@@ -106,77 +185,71 @@
         return;
       }
 
-      firebase.database().ref('ventas').once('value')
-        .then(snapshot => {
-          let totalVentas = 0;
-          const resumen = {};
+      firebase.database().ref('ventas').once('value').then(snapshot => {
+        let totalVentas = 0;
+        const resumen = {};
+        const resumenNoClave = {};
+        const productosNoClave = [
+          'Taco de cochinita',
+          'Orden de 4 tacos de cochinita',
+          'Quesadilla de seso'
+        ];
 
-          snapshot.forEach(ticket => {
-            const data = ticket.val();
-            if (data.fecha >= inicio && data.fecha <= fin) {
-              data.orden.forEach(item => {
-                if (productosClave.includes(item.producto)) {
-                  totalVentas += item.subtotal;
-                  if (!resumen[item.producto]) {
-                    resumen[item.producto] = { cantidad: 0, total: 0 };
-                  }
-                  resumen[item.producto].cantidad += item.cantidad;
-                  resumen[item.producto].total += item.subtotal;
+        // ✅ Recorrer todos los tickets dentro del rango de fechas
+        snapshot.forEach(ticket => {
+          const data = ticket.val();
+          if (data.fecha >= inicio && data.fecha <= fin) {
+            data.orden.forEach(item => {
+              if (productosClave.includes(item.producto)) {
+                totalVentas += item.subtotal;
+                if (!resumen[item.producto]) {
+                  resumen[item.producto] = { cantidad: 0, total: 0 };
                 }
-              });
-            }
-          });
-
-          let resumenHTML = '<h4>Desglose de Ventas (productos clave):</h4><ul>';
-          for (let producto in resumen) {
-            resumenHTML += `<li>${producto} x ${resumen[producto].cantidad} = $${resumen[producto].total.toFixed(2)}</li>`;
-          }
-          resumenHTML += '</ul>';
-
-          const productosNoClave = [
-            'Taco de cochinita',
-            'Orden de 4 tacos de cochinita',
-            'Quesadilla de seso'
-          ];
-          const resumenNoClave = {};
-          snapshot.forEach(ticket => {
-            const data = ticket.val();
-            if (data.fecha >= inicio && data.fecha <= fin) {
-              data.orden.forEach(item => {
-                if (productosNoClave.includes(item.producto)) {
-                  if (!resumenNoClave[item.producto]) {
-                    resumenNoClave[item.producto] = { cantidad: 0, total: 0 };
-                  }
-                  resumenNoClave[item.producto].cantidad += item.cantidad;
-                  resumenNoClave[item.producto].total += item.subtotal;
+                resumen[item.producto].cantidad += item.cantidad;
+                resumen[item.producto].total += item.subtotal;
+              } else if (productosNoClave.includes(item.producto)) {
+                if (!resumenNoClave[item.producto]) {
+                  resumenNoClave[item.producto] = { cantidad: 0, total: 0 };
                 }
-              });
-            }
-          });
-
-          let noClaveHTML = '<h4>Productos NO considerados como Ganancia (cochinita, seso):</h4><ul>';
-          for (let producto in resumenNoClave) {
-            noClaveHTML += `<li>${producto} x ${resumenNoClave[producto].cantidad} = $${resumenNoClave[producto].total.toFixed(2)}</li>`;
+                resumenNoClave[item.producto].cantidad += item.cantidad;
+                resumenNoClave[item.producto].total += item.subtotal;
+              }
+            });
           }
-          noClaveHTML += '</ul>';
-
-          const ganancia = totalVentas - totalExpenses;
-          const colorGanancia = ganancia >= 0 ? 'green' : 'red';
-          const estiloGanancia = `font-weight:bold; font-size:1.2em; color:${colorGanancia}`;
-          const estiloGasto = 'color:green; font-weight:bold;';
-          const estiloNoClave = 'color:#666;';
-          const estiloClave = 'color:blue; font-weight:bold;';
-          const totalNoClave = Object.values(resumenNoClave).reduce((a, b) => a + b.total, 0).toFixed(2);
-
-          document.getElementById('profit-result').innerHTML = resumenHTML + noClaveHTML + `
-            <h4 style="${estiloNoClave}">Total Ventas NO consideradas: $${totalNoClave}</h4>
-            <h4 style="${estiloClave}">Total Ventas (clave): $${totalVentas.toFixed(2)}</h4>
-            <h4 style="${estiloGasto}">Total Gastos: $${totalExpenses.toFixed(2)}</h4>
-            <h3 style="${estiloGanancia}">Ganancia Neta: $${ganancia.toFixed(2)}</h3>
-          `;
         });
-    }
 
+        // ✅ HTML para productos clave
+        let resumenHTML = '<h4>Desglose de Ventas (productos clave):</h4><ul>';
+        for (let producto in resumen) {
+          resumenHTML += `<li>${producto} x ${resumen[producto].cantidad} = $${resumen[producto].total.toFixed(2)}</li>`;
+        }
+        resumenHTML += '</ul>';
+
+        // ✅ HTML para productos no clave
+        let noClaveHTML = '<h4>Productos NO considerados como Ganancia (cochinita, seso):</h4><ul>';
+        for (let producto in resumenNoClave) {
+          noClaveHTML += `<li>${producto} x ${resumenNoClave[producto].cantidad} = $${resumenNoClave[producto].total.toFixed(2)}</li>`;
+        }
+        noClaveHTML += '</ul>';
+
+        // ✅ Totales y ganancia neta
+        const ganancia = totalVentas - totalExpenses;
+        const colorGanancia = ganancia >= 0 ? 'green' : 'red';
+        const estiloGanancia = `font-weight:bold; font-size:1.2em; color:${colorGanancia}`;
+        const estiloGasto = 'color:green; font-weight:bold;';
+        const estiloNoClave = 'color:#666;';
+        const estiloClave = 'color:blue; font-weight:bold;';
+        const totalNoClave = Object.values(resumenNoClave).reduce((a, b) => a + b.total, 0).toFixed(2);
+
+        document.getElementById('profit-result').innerHTML = resumenHTML + noClaveHTML + `
+          <h4 style="${estiloNoClave}">Total Ventas NO consideradas: $${totalNoClave}</h4>
+          <h4 style="${estiloClave}">Total Ventas (clave): $${totalVentas.toFixed(2)}</h4>
+          <h4 style="${estiloGasto}">Total Gastos: $${totalExpenses.toFixed(2)}</h4>
+          <h3 style="${estiloGanancia}">Ganancia Neta: $${ganancia.toFixed(2)}</h3>
+        `;
+      });
+    }
+    // ✅ Mostrar receta proporcional según kg de carne ingresados
     function showRecipeCalculation(kilos = 2.5) {
       kilos = parseFloat(kilos);
       const factor = kilos / 2.5;
@@ -201,6 +274,7 @@
         `</ul>`;
     }
 
+    // ✅ Ejecutar carga de gastos al iniciar la página
     window.onload = loadExpenses;
   </script>
 </body>
