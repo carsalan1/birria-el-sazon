@@ -1,4 +1,8 @@
+
 // --- Parte 1: Configuración de Firebase y Variables ---
+// Inicializa Firebase con la configuración del proyecto
+// Carga datos de sesión previos y define el menú agrupado por categorías
+
 const firebaseConfig = {
   apiKey: "", // Tu API key
   authDomain: "",
@@ -113,7 +117,11 @@ function exitSite() {
   localStorage.clear();
   window.location.href = "https://www.google.com";
 }
+
 // --- Parte 2: Menú y control de pedido ---
+// Funciones para renderizar el menú, modificar cantidades,
+// confirmar productos y actualizar el resumen del pedido
+
 
 // Renderizar el menú
 function renderMenu() {
@@ -225,7 +233,11 @@ function confirmCurrentOrder() {
   saveSession();
   alert("Pedido confirmado. Puedes seguir agregando más productos si deseas.");
 }
+
 // --- Parte 3: Confirmar pago y mostrar ticket ---
+// Funciones para pedir cuenta, guardar ticket en Firebase
+// y mostrar el ticket final al cliente
+
 
 // Preparar el checkout (pedir cuenta)
 function prepareCheckout() {
@@ -272,7 +284,7 @@ function showTicket(pedido) {
     ticket.innerHTML += `<li>${item.cantidad} x ${item.producto} - $${item.subtotal}</li>`;
   });
   ticket.innerHTML += `</ul><h3>Total: $${pedido.total}</h3><br>
-<h2 style="font-size: 1.5em; font-weight: bold;">Gracias por su preferencia, vuelva pronto, $${pedido.cliente}.</h2>
+<h2 style="font-size: 1.5em; font-weight: bold;">Gracias por su preferencia, vuelva pronto, ${pedido.cliente}.</h2>
 <br><button onclick="exitSite()" class="button-exit">Salir</button>`;
 
   document.getElementById('welcome').innerHTML = "";
@@ -280,27 +292,58 @@ function showTicket(pedido) {
   document.getElementById('order-summary').style.display = 'none';
   ticket.style.display = 'block';
 }
-    // --- Parte 4: Funciones de Administrador ---
+    
+// --- Parte 4: Funciones de Administrador ---
+// Funciones para visualizar ventas del día, por rango de fechas,
+// cambiar contraseña de cliente, y mostrar receta escalable
+
 
 // Mostrar tickets del día
 function showTodayTickets() {
   const today = getLocalDateYMD();
+
   firebase.database().ref('ventas').orderByChild('fecha').equalTo(today).once('value')
     .then(snapshot => {
       const resultDiv = document.getElementById('admin-results');
       resultDiv.innerHTML = "<h3>Tickets del Día</h3>";
+
       snapshot.forEach(ticket => {
         const data = ticket.val();
+
+        // Agrupar productos iguales
+        const agrupado = {};
+        if (Array.isArray(data.orden)) {
+          data.orden.forEach(item => {
+            if (!agrupado[item.producto]) {
+              agrupado[item.producto] = { cantidad: 0, subtotal: 0 };
+            }
+            agrupado[item.producto].cantidad += item.cantidad;
+            agrupado[item.producto].subtotal += item.subtotal;
+          });
+        }
+
+        // Crear lista detallada de productos
+        let detalleProductos = "<ul>";
+        for (const producto in agrupado) {
+          const cantidad = agrupado[producto].cantidad;
+          const subtotal = agrupado[producto].subtotal.toFixed(2);
+          detalleProductos += `<li>${producto} x ${cantidad} = $${subtotal}</li>`;
+        }
+        detalleProductos += "</ul>";
+
+        // Mostrar el ticket con detalle
         resultDiv.innerHTML += `
           <div style="margin-bottom:20px;">
             <strong>Ticket #${data.ticket}</strong><br>
             Cliente: ${data.cliente}<br>
             Fecha: ${data.fecha} ${data.hora}<br>
             Método de Pago: ${data.metodoPago}<br>
-            Total: $${data.total}<br>
+            ${detalleProductos}
+            <strong>Total: $${parseFloat(data.total).toFixed(2)}</strong>
           </div><hr>`;
       });
     });
+
 }
 
 // Mostrar venta del día agrupada
@@ -401,4 +444,40 @@ function getLocalDateYMD() {
   const offset = now.getTimezoneOffset(); // minutos
   const localDate = new Date(now.getTime() - offset * 60000); // ajustar a zona local
   return localDate.toISOString().split('T')[0];
+}
+
+
+// --- NUEVO PANEL: REDIRECCIÓN A GASTOS ---
+// Abre una nueva pestaña con la página de gastos
+
+function showExpensesPanel() {
+  window.open("gastos.html", "_blank");
+}
+
+
+// --- RECETA ESCALABLE ---
+// Calcula los ingredientes necesarios para una cantidad específica de carne de birria
+
+function showRecipeCalculation(kilos = 2.5) {
+  const factor = kilos / 2.5;
+  const adminDiv = document.getElementById('admin-results');
+  adminDiv.innerHTML = `<h3>Receta para ${kilos} kg de Carne de Birria</h3>
+    <ul>
+      <li>${(2.5 * factor).toFixed(2)} kg de carne de res (chamberete, costilla, diezmillo, pecho)</li>
+      <li>${Math.ceil(10 * factor)} chiles guajillo</li>
+      <li>${Math.ceil(1 * factor)} chile morita</li>
+      <li>${Math.ceil(1 * factor)} chile ancho</li>
+      <li>${Math.ceil(5 * factor)} hojas de laurel</li>
+      <li>${Math.ceil(2 * factor)} pizcas de orégano</li>
+      <li>${Math.ceil(4 * factor)} ajos</li>
+      <li>Ramita de mejorana</li>
+      <li>${(5 * factor).toFixed(1)} cm de canela</li>
+      <li>${Math.ceil(12 * factor)} pimientas</li>
+      <li>${Math.ceil(4 * factor)} clavos</li>
+      <li>${Math.ceil(3 * factor)} pizcas de comino</li>
+      <li>${Math.ceil(5 * factor)} cucharadas de vinagre de manzana</li>
+      <li>${Math.ceil(5 * factor)} jitomates</li>
+      <li>${Math.ceil(0.5 * factor)} cebolla</li>
+      <li>${Math.ceil(1 * factor)} cubo de consomé de res</li>
+    </ul>`;
 }

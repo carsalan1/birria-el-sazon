@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Registro de Gastos y Ganancias</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    .gasto-linea {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .gasto-linea input {
+      padding: 6px;
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="section">
+    <h2>Registrar Gastos</h2>
+    <div id="expense-fields"></div>
+    <button onclick="saveExpenses()" class="button-primary">Guardar Gastos</button>
+
+    <h3>Rango de Fechas para Ventas</h3>
+    <label>Fecha Inicio:</label><input id="fechaInicioGasto" type="date">
+    <label>Fecha Fin:</label><input id="fechaFinGasto" type="date">
+    <button onclick="calculateProfit()" class="button-primary">Calcular Ganancia</button>
+
+    <div id="profit-result" style="margin-top:20px;"></div>
+
+    <div style="margin-top: 40px;">
+      <h3 style="color:#003366; font-weight:bold;">Receta Escalable</h3>
+      <label>¿Cuántos kg de carne deseas preparar?</label>
+      <input type="number" id="kgCarne" value="2.5" min="1" step="0.1">
+      <button onclick="showRecipeCalculation(document.getElementById('kgCarne').value)" class="button-primary">Ver Receta</button>
+    </div>
+
+    <div id="admin-results" style="margin-top:20px;"></div>
+    <br><button class="button-exit" onclick="window.close()">Salir</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script>
+    const firebaseConfig = {
+      databaseURL: "https://birria-c2b8a-default-rtdb.firebaseio.com/"
+    };
+    firebase.initializeApp(firebaseConfig);
+
+    const productosClave = [
+      'Taco de birria',
+      'Orden de 4 pzs. con consomé individual',
+      'Vaso individual de consomé',
+      'Medio litro de consomé',
+      'Litro de consomé',
+      'Flan',
+      'Agua de sabor medio litro',
+      'Agua de sabor litro',
+      'Refresco'
+    ];
+
+    function loadExpenses() {
+      firebase.database().ref('gastos').once('value').then(snapshot => {
+        const gastos = snapshot.val() || [];
+        const container = document.getElementById('expense-fields');
+        container.innerHTML = '';
+        for (let i = 0; i < 15; i++) {
+          const gasto = gastos[i] || { descripcion: '', costo: '' };
+          const row = document.createElement('div');
+          row.className = 'gasto-linea';
+          row.innerHTML = `
+            <input id="desc${i}" value="${gasto.descripcion}" placeholder="Descripción #${i + 1}" type="text" style="flex:1;">
+            <input id="cost${i}" value="${gasto.costo}" placeholder="Costo #${i + 1}" type="number" min="0" step="0.01" style="width:120px;">
+          `;
+          container.appendChild(row);
+        }
+      });
+    }
+
+    function saveExpenses() {
+      const gastos = [];
+      for (let i = 0; i < 15; i++) {
+        const descripcion = document.getElementById('desc' + i).value;
+        const costo = parseFloat(document.getElementById('cost' + i).value) || 0;
+        gastos.push({ descripcion, costo });
+      }
+      firebase.database().ref('gastos').set(gastos).then(() => {
+        alert('Gastos guardados correctamente.');
+      });
+    }
+
+    function calculateProfit() {
+      let totalExpenses = 0;
+      for (let i = 0; i < 15; i++) {
+        const val = parseFloat(document.getElementById('cost' + i).value);
+        if (!isNaN(val)) totalExpenses += val;
+      }
+
+      const inicio = document.getElementById('fechaInicioGasto').value;
+      const fin = document.getElementById('fechaFinGasto').value;
+      if (!inicio || !fin) {
+        alert("Selecciona ambas fechas para calcular ganancias.");
+        return;
+      }
+
+      firebase.database().ref('ventas').once('value')
+        .then(snapshot => {
+          let totalVentas = 0;
+          const resumen = {};
+
+          snapshot.forEach(ticket => {
+            const data = ticket.val();
+            if (data.fecha >= inicio && data.fecha <= fin) {
+              data.orden.forEach(item => {
+                if (productosClave.includes(item.producto)) {
+                  totalVentas += item.subtotal;
+                  if (!resumen[item.producto]) {
+                    resumen[item.producto] = { cantidad: 0, total: 0 };
+                  }
+                  resumen[item.producto].cantidad += item.cantidad;
+                  resumen[item.producto].total += item.subtotal;
+                }
+              });
+            }
+          });
+
+          let resumenHTML = '<h4>Desglose de Ventas (productos clave):</h4><ul>';
+          for (let producto in resumen) {
+            resumenHTML += `<li>${producto} x ${resumen[producto].cantidad} = $${resumen[producto].total.toFixed(2)}</li>`;
+          }
+          resumenHTML += '</ul>';
+
+          const productosNoClave = [
+            'Taco de cochinita',
+            'Orden de 4 tacos de cochinita',
+            'Quesadilla de seso'
+          ];
+          const resumenNoClave = {};
+          snapshot.forEach(ticket => {
+            const data = ticket.val();
+            if (data.fecha >= inicio && data.fecha <= fin) {
+              data.orden.forEach(item => {
+                if (productosNoClave.includes(item.producto)) {
+                  if (!resumenNoClave[item.producto]) {
+                    resumenNoClave[item.producto] = { cantidad: 0, total: 0 };
+                  }
+                  resumenNoClave[item.producto].cantidad += item.cantidad;
+                  resumenNoClave[item.producto].total += item.subtotal;
+                }
+              });
+            }
+          });
+
+          let noClaveHTML = '<h4>Productos NO considerados como Ganancia (cochinita, seso):</h4><ul>';
+          for (let producto in resumenNoClave) {
+            noClaveHTML += `<li>${producto} x ${resumenNoClave[producto].cantidad} = $${resumenNoClave[producto].total.toFixed(2)}</li>`;
+          }
+          noClaveHTML += '</ul>';
+
+          const ganancia = totalVentas - totalExpenses;
+          const colorGanancia = ganancia >= 0 ? 'green' : 'red';
+          const estiloGanancia = `font-weight:bold; font-size:1.2em; color:${colorGanancia}`;
+          const estiloGasto = 'color:green; font-weight:bold;';
+          const estiloNoClave = 'color:#666;';
+          const estiloClave = 'color:blue; font-weight:bold;';
+          const totalNoClave = Object.values(resumenNoClave).reduce((a, b) => a + b.total, 0).toFixed(2);
+
+          document.getElementById('profit-result').innerHTML = resumenHTML + noClaveHTML + `
+            <h4 style="${estiloNoClave}">Total Ventas NO consideradas: $${totalNoClave}</h4>
+            <h4 style="${estiloClave}">Total Ventas (clave): $${totalVentas.toFixed(2)}</h4>
+            <h4 style="${estiloGasto}">Total Gastos: $${totalExpenses.toFixed(2)}</h4>
+            <h3 style="${estiloGanancia}">Ganancia Neta: $${ganancia.toFixed(2)}</h3>
+          `;
+        });
+    }
+
+    function showRecipeCalculation(kilos = 2.5) {
+      kilos = parseFloat(kilos);
+      const factor = kilos / 2.5;
+      const div = document.getElementById('admin-results');
+      div.innerHTML = `<h3>Receta para ${kilos} kg de Carne de Birria</h3><ul>` +
+        `<li>${(2.5 * factor).toFixed(2)} kg de carne de res</li>` +
+        `<li>${Math.ceil(10 * factor)} chiles guajillo</li>` +
+        `<li>${Math.ceil(1 * factor)} chile morita</li>` +
+        `<li>${Math.ceil(1 * factor)} chile ancho</li>` +
+        `<li>${Math.ceil(5 * factor)} hojas de laurel</li>` +
+        `<li>${Math.ceil(2 * factor)} pizcas de orégano</li>` +
+        `<li>${Math.ceil(4 * factor)} ajos</li>` +
+        `<li>Ramita de mejorana</li>` +
+        `<li>${(5 * factor).toFixed(1)} cm de canela</li>` +
+        `<li>${Math.ceil(12 * factor)} pimientas</li>` +
+        `<li>${Math.ceil(4 * factor)} clavos</li>` +
+        `<li>${Math.ceil(3 * factor)} pizcas de comino</li>` +
+        `<li>${Math.ceil(5 * factor)} cucharadas de vinagre de manzana</li>` +
+        `<li>${Math.ceil(5 * factor)} jitomates</li>` +
+        `<li>${Math.ceil(0.5 * factor)} cebolla</li>` +
+        `<li>${Math.ceil(1 * factor)} cubo de consomé de res</li>` +
+        `</ul>`;
+    }
+
+    window.onload = loadExpenses;
+  </script>
+</body>
+</html>
